@@ -24,17 +24,23 @@ public sealed class Settings
     // Reminders
     public bool RemindersEnabled { get; set; } = true;
     public int IntervalMinutes { get; set; } = 45;
+    /// <summary>Remind any time you're actually at the PC (screen on + recent keyboard/mouse), ignoring the clock.</summary>
+    public bool FollowActivity { get; set; } = true;
+
     public int ActiveStartMinutes { get; set; } = 8 * 60;
     public int ActiveEndMinutes { get; set; } = 22 * 60;
     public bool SmartTiming { get; set; } = true;
     public int SnoozeMinutes { get; set; } = 10;
+
+    /// <summary>If a reminder is dismissed or ignored (no drink), the cat comes back after this many minutes.</summary>
+    public int RepeatMinutes { get; set; } = 15;
     public bool RespectFullscreen { get; set; } = true;
     public bool RemindAfterGoal { get; set; }
 
     // Companion
     public ReminderStyle Style { get; set; } = ReminderStyle.Cat;
     public bool Animations { get; set; } = true;
-    public CatSize CatSize { get; set; } = CatSize.Medium;
+    public CatSize CatSize { get; set; } = CatSize.Small;
     public int AutoHideMinutes { get; set; } = 3;
     public bool ShowWidget { get; set; } = true;
     public bool WidgetOnTop { get; set; } = true;
@@ -69,7 +75,8 @@ public sealed class DayRecord
 
 public sealed class AppData
 {
-    public int Version { get; set; } = 1;
+    /// <summary>Data format version (see DataStore.Migrate).</summary>
+    public int Version { get; set; } = DataStore.CurrentVersion;
     public Settings Settings { get; set; } = new();
 
     /// <summary>History, one record per day ("yyyy-MM-dd").</summary>

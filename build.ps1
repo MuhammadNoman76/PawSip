@@ -2,7 +2,7 @@
 #   powershell -ExecutionPolicy Bypass -File build.ps1
 # Output: dist\PawSip-Setup-<version>.exe  (the app itself is in publish\)
 param(
-    [string]$Version = "1.0.0",
+    [string]$Version = "1.0.1",
     [switch]$SkipInstaller
 )
 $ErrorActionPreference = 'Stop'

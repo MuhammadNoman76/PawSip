@@ -45,8 +45,37 @@ public static class Messages
         "*happy kneading*",
     };
 
-    public static string Reminder(bool firstOfDay, int pace) =>
-        firstOfDay ? Pick(Morning) : pace < 0 && Rng.Next(2) == 0 ? Pick(Behind) : Pick(Reminders);
+    private static readonly string[] WelcomeBack =
+    {
+        "Welcome back! Let's start with a glass of water.",
+        "You're back! I saved you a sip — drink some water?",
+        "Mrrp! Missed you. Time for a glass of water!",
+    };
+
+    public static string Reminder(ReminderKind kind, int pace) => kind switch
+    {
+        ReminderKind.FirstOfDay => Pick(Morning),
+        ReminderKind.WelcomeBack => Pick(WelcomeBack),
+        _ => pace < 0 && Rng.Next(2) == 0 ? Pick(Behind) : Pick(Reminders),
+    };
+
+    private static readonly string[] Nudges =
+    {
+        "Meow? You still haven't had that glass…",
+        "I'm back! Just one glass, please?",
+        "Psst… the water is still waiting for you!",
+        "Mrrow! Don't make me ask again~ Sip sip!",
+    };
+
+    private static readonly string[] Pleading =
+    {
+        "Pretty please? I'll keep coming back until you drink!",
+        "Okay, this cat is not giving up. Water time!",
+        "I'm very persistent… one glass and I'll nap!",
+    };
+
+    /// <summary>For a reminder that comes back because the last one ended without a drink.</summary>
+    public static string Nudge(int missedInARow) => missedInARow >= 3 ? Pick(Pleading) : Pick(Nudges);
 
     public static string Thank(bool goalReached) =>
         goalReached ? "Goal reached! You're paw-some!" : Pick(Thanks);

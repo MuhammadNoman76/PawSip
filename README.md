@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="release/PawSip-Setup-1.0.0.exe"><b>⬇ Download PawSip for Windows</b></a>
+  <a href="release/PawSip-Setup-1.0.1.exe"><b>⬇ Download PawSip for Windows</b></a>
   &nbsp;·&nbsp; Windows 10 / 11 (64-bit) &nbsp;·&nbsp; free, no account, works offline
 </p>
 
@@ -38,7 +38,7 @@ quiet outside your active hours.
   **I drank water**, **Remind me later** (5, 10, 15, 30 min or 1 hour), or **Dismiss**.
 - **Fully animated.** It blinks, looks around, twitches its ears, waves, walks, naps with floating *Zzz*,
   drinks through a straw and celebrates with hearts. Click it to pet it.
-- **Draggable.** Put it anywhere; it remembers the spot. Choose **Small, Medium or Large**.
+- **Draggable.** Put it anywhere; it remembers the spot. Choose **Small** (default), **Medium** or **Large**.
 - **Right-click menu.** Drink, undo, "remind me in…", cat size, keep on top, hide.
 - **Calm by design.** Between reminders it naps. If you ignore a reminder it curls up and stops asking.
 
@@ -49,12 +49,17 @@ quiet outside your active hours.
 - **Resets automatically at midnight.** Every day is kept in your history.
 
 ### ⏰ Smart reminders
+- **Follows you, not the clock.** Whenever you're at the PC (screen on, unlocked, keyboard or mouse in use),
+  the cat can remind you, any time of day. While you're away, the screen is off or the PC is locked, it
+  waits, and greets you with a "Welcome back!" reminder as soon as you return.
+- **Doesn't give up.** Dismiss or ignore a reminder without drinking and the cat comes back after
+  **15 minutes**, again and again, until you've had some water. It gets a little more insistent each time.
 - Remind every **20, 30, 45, 60, 90 or 120 minutes**.
-- **Active hours** (for example 8:00 AM – 10:00 PM), so no reminders while you sleep.
-- **Smart timing.** Reminders come a bit more often when you're behind schedule and relax when you're
+- **Smart timing.** Reminders come a bit more often when you're behind on your goal and relax when you're
   ahead. Once you hit your goal the cat rests until tomorrow (optional).
-- **Never interrupts** fullscreen apps, games, videos or presentations, and waits while you're away from
-  the PC or it's locked.
+- **Your day** (for example 8:00 AM – 10:00 PM) paces your goal. Prefer strict quiet hours? Turn off
+  "Remind me whenever I'm using my PC" and reminders only come inside those hours.
+- **Never interrupts** fullscreen apps, games, videos or presentations.
 - Pause for 30 min, 1 hour, 2 hours or until tomorrow from the tray.
 
 ### 📊 Dashboard and statistics
@@ -76,11 +81,11 @@ quiet outside your active hours.
 - Your preferences, progress and reminder schedule are restored after a restart.
 
 ### 🔊 Sounds
-- A soft synthesized **meow**, a chime, a water drop, or silence, with adjustable volume.
+- A soft synthesized **meow** (default), a chime, a water drop, or silence, with adjustable volume.
 
 ## Install
 
-1. Download **[PawSip-Setup-1.0.0.exe](release/PawSip-Setup-1.0.0.exe)**.
+1. Download **[PawSip-Setup-1.0.1.exe](release/PawSip-Setup-1.0.1.exe)**.
 2. Run it. No admin rights needed; it installs just for your user account.
 3. Keep **Start PawSip with Windows** ticked so your cat is always there.
 
@@ -93,7 +98,7 @@ Uninstall from *Settings › Apps*. Your history stays in `%APPDATA%\PawSip` in 
 | Desktop cat | Hover: drink a glass, undo, open the app · Right-click: remind me in…, cat size, keep on top · Drag: move it · Click: pet it |
 | Reminder bubble | **I drank water** · **Remind me later** (pick the time) · ✕ dismiss |
 | Tray icon | Open, log a glass, remind me now, show or hide the desktop cat, pause or resume reminders, exit |
-| Settings | Goal and glass size, interval, active hours, smart timing, snooze length, fullscreen behaviour, cat style and size, animations, sound and volume, start with Windows |
+| Settings | Goal and glass size, interval, activity-based reminders, your day's hours, smart timing, "ask again" time, snooze length, fullscreen behaviour, desktop cat, cat style and size, animations, sound and volume, start with Windows |
 
 ## Privacy
 

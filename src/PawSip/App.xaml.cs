@@ -71,6 +71,7 @@ public partial class App : Application
         Hydration.Changed += () => _tray?.Refresh();
         Scheduler.ScheduleChanged += () => _tray?.Refresh();
         Scheduler.ReminderDue += OnReminderDue;
+        Presence.Start();
         Scheduler.Start();
         ApplyWidget();
 
@@ -110,7 +111,7 @@ public partial class App : Application
     public void RecordDrink(int ml, bool fromTray = false)
     {
         var goalJustReached = Hydration.AddDrink(ml);
-        Scheduler.Reschedule();
+        Scheduler.DrinkLogged();
         DrinkRecorded?.Invoke(goalJustReached);
         if (fromTray)
         {
@@ -119,9 +120,11 @@ public partial class App : Application
         }
     }
 
-    private void OnReminderDue(bool firstOfDay)
+    private void OnReminderDue(ReminderKind kind)
     {
-        var message = Messages.Reminder(firstOfDay, Scheduler.PaceDelta());
+        var message = Scheduler.MissedInARow > 0 && kind == ReminderKind.Regular
+            ? Messages.Nudge(Scheduler.MissedInARow)
+            : Messages.Reminder(kind, Scheduler.PaceDelta());
         if (Store.Settings.Style == ReminderStyle.Notification)
         {
             Sounds.Play(Store.Settings.Sound, Store.Settings.Volume);
@@ -220,6 +223,7 @@ public partial class App : Application
     public void ExitApp()
     {
         Scheduler.Stop();
+        Presence.Stop();
         Store.SaveNow();
         _cat?.Close();
         _widget?.Close();

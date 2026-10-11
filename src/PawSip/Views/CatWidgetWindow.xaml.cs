@@ -362,7 +362,7 @@ public partial class CatWidgetWindow : Window
                 });
                 break;
             case ReminderResponse.Dismissed:
-                Say("See you later! Stay hydrated~", 2.0);
+                Say($"Okay… I'll check on you again in {Settings.RepeatMinutes} minutes~", 2.5);
                 Cat.SetMood(CatMood.Idle);
                 RestartNap();
                 break;

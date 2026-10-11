@@ -5,6 +5,9 @@ namespace PawSip.Core;
 
 public enum ReminderResponse { Drank, Later, Dismissed, Ignored }
 
+/// <summary>What kind of reminder this is (changes what the cat says).</summary>
+public enum ReminderKind { Regular, FirstOfDay, WelcomeBack }
+
 /// <summary>
 /// Decides when the cat shows up. One cheap check every 20 seconds (no busy loops), schedule stored on
 /// disk so it survives restarts, quiet outside active hours, during fullscreen apps and while you're away.
@@ -12,7 +15,6 @@ public enum ReminderResponse { Drank, Later, Dismissed, Ignored }
 public sealed class ReminderScheduler
 {
     private static readonly TimeSpan CheckEvery = TimeSpan.FromSeconds(20);
-    private static readonly TimeSpan AwayAfter = TimeSpan.FromMinutes(15);
     private const int MinIntervalMinutes = 15;
 
     private readonly DataStore _store;
@@ -29,7 +31,7 @@ public sealed class ReminderScheduler
     }
 
     /// <summary>Time to remind - show the cat (or a notification) and call <see cref="Respond"/> afterwards.</summary>
-    public event Action<bool>? ReminderDue; // bool = first reminder of the day
+    public event Action<ReminderKind>? ReminderDue;
 
     /// <summary>Next reminder time, pause state or day changed.</summary>
     public event Action? ScheduleChanged;
@@ -71,29 +73,37 @@ public sealed class ReminderScheduler
             Reschedule();
             return;
         }
-        if (DateTime.Now < due) return;
 
-        if (!IsActive(DateTime.Now))
+        var now = DateTime.Now;
+        var present = Presence.IsUserActive; // screen on, unlocked, keyboard/mouse used in the last few minutes
+        if (now < due) return;
+
+        if (!Settings.FollowActivity && !IsActive(now))
         {
-            Schedule(ClampToActive(DateTime.Now));
+            Schedule(ClampToActive(now));
             return;
         }
+        if (!present) return; // away, screen off or locked: the cat waits and greets you when you're back
         if (Settings.RespectFullscreen && Native.IsUserBusy()) return; // try again on the next check
-        if (Native.IdleTime > AwayAfter) return; // you're away - the cat waits until you're back
 
-        var firstToday = _lastFired.Date != DateTime.Today;
-        _lastFired = DateTime.Now;
+        var kind = _lastFired.Date != DateTime.Today ? ReminderKind.FirstOfDay
+            : (now - due.Value) > TimeSpan.FromMinutes(20) ? ReminderKind.WelcomeBack
+            : ReminderKind.Regular;
+        _lastFired = now;
         _reminderOpen = true;
-        ReminderDue?.Invoke(firstToday);
+        ReminderDue?.Invoke(kind);
     }
 
-    /// <summary>Show a reminder right now (tray "Show cat now" / settings preview).</summary>
+    /// <summary>Show a reminder right now (tray "Remind me now").</summary>
     public void TriggerNow()
     {
         if (_reminderOpen) return;
         _reminderOpen = true;
-        ReminderDue?.Invoke(false);
+        ReminderDue?.Invoke(ReminderKind.Regular);
     }
+
+    /// <summary>How many reminders in a row ended without a drink (the cat gets a little more insistent).</summary>
+    public int MissedInARow { get; private set; }
 
     /// <param name="snoozeMinutes">For "Remind me later": how long to wait (0 = the snooze setting).</param>
     public void Respond(ReminderResponse response, int snoozeMinutes = 0)
@@ -101,14 +111,28 @@ public sealed class ReminderScheduler
         _reminderOpen = false;
         switch (response)
         {
-            case ReminderResponse.Later:
-            case ReminderResponse.Ignored:
-                Schedule(DateTime.Now.AddMinutes(snoozeMinutes > 0 ? snoozeMinutes : Settings.SnoozeMinutes));
-                break;
-            default:
+            case ReminderResponse.Drank:
+                MissedInARow = 0;
                 Reschedule();
                 break;
+            case ReminderResponse.Later:
+                // The user picked a time - respect it.
+                MissedInARow++;
+                Schedule(ClampToActive(DateTime.Now.AddMinutes(snoozeMinutes > 0 ? snoozeMinutes : Settings.SnoozeMinutes)));
+                break;
+            default:
+                // Dismissed or ignored without drinking: come back soon, again and again, until there's a drink.
+                MissedInARow++;
+                Schedule(ClampToActive(DateTime.Now.AddMinutes(Settings.RepeatMinutes)));
+                break;
         }
+    }
+
+    /// <summary>A drink was logged somewhere (dashboard, widget, tray): back to the normal rhythm.</summary>
+    public void DrinkLogged()
+    {
+        MissedInARow = 0;
+        Reschedule();
     }
 
     /// <summary>"Remind me in 30 minutes" - works any time, also ends a pause.</summary>
@@ -124,8 +148,11 @@ public sealed class ReminderScheduler
         var now = DateTime.Now;
         if (_hydration.GoalReached && !Settings.RemindAfterGoal)
         {
-            // Goal done - next reminder tomorrow morning.
-            Schedule(ClampToActive(DateTime.Today.AddDays(1).AddMinutes(Settings.ActiveStartMinutes)));
+            // Goal done - the cat rests until tomorrow (morning, or as soon as you're at the PC after midnight).
+            var tomorrow = DateTime.Today.AddDays(1);
+            Schedule(Settings.FollowActivity
+                ? tomorrow.AddMinutes(Math.Min(Settings.IntervalMinutes, 60))
+                : ClampToActive(tomorrow.AddMinutes(Settings.ActiveStartMinutes)));
             return;
         }
         Schedule(ClampToActive(now.AddMinutes(CurrentIntervalMinutes())));
@@ -179,9 +206,10 @@ public sealed class ReminderScheduler
         return start < end ? tod >= start && tod < end : tod >= start || tod < end;
     }
 
+    /// <summary>Moves a time into the active hours - unless reminders follow your activity instead of the clock.</summary>
     private DateTime ClampToActive(DateTime at)
     {
-        if (IsActive(at)) return at;
+        if (Settings.FollowActivity || IsActive(at)) return at;
         var startToday = at.Date.AddMinutes(Settings.ActiveStartMinutes);
         return startToday > at ? startToday : startToday.AddDays(1);
     }

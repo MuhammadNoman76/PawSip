@@ -40,6 +40,7 @@ public sealed class DataStore
                 {
                     data.Settings ??= new Settings();
                     data.Days ??= new Dictionary<string, DayRecord>();
+                    Migrate(data);
                     Sanitize(data.Settings);
                     return data;
                 }
@@ -54,8 +55,24 @@ public sealed class DataStore
         return new AppData();
     }
 
+    public const int CurrentVersion = 2;
+
+    /// <summary>One-time updates for data saved by earlier versions.</summary>
+    private static void Migrate(AppData data)
+    {
+        if (data.Version < 2)
+        {
+            // 1.0.1: the meow and the small cat became the defaults.
+            data.Settings.Sound = ReminderSound.Meow;
+            data.Settings.CatSize = CatSize.Small;
+            if (data.Settings.RepeatMinutes <= 0) data.Settings.RepeatMinutes = 15;
+        }
+        data.Version = CurrentVersion;
+    }
+
     private static void Sanitize(Settings s)
     {
+        s.RepeatMinutes = Math.Clamp(s.RepeatMinutes, 5, 120);
         s.GlassMl = Math.Clamp(s.GlassMl, 50, 1500);
         s.GoalMl = Math.Clamp(s.GoalMl, 250, 10000);
         s.IntervalMinutes = Math.Clamp(s.IntervalMinutes, 10, 240);

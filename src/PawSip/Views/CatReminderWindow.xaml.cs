@@ -295,7 +295,7 @@ public partial class CatReminderWindow : Window
     {
         if (_responded) return;
         Respond(ReminderResponse.Dismissed);
-        Settle("See you later! Stay hydrated~");
+        Settle($"Okay… I'll check on you again in {_settings.RepeatMinutes} minutes~");
         Cat.SetMood(CatMood.Wave);
         After(1.3, Leave);
     }

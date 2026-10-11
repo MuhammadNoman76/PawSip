@@ -85,11 +85,16 @@ public partial class SettingsPage : UserControl
         hours.Children.Add(from);
         hours.Children.Add(new TextBlock { Text = "to", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 12, 0), Foreground = Brush("Ink2") });
         hours.Children.Add(to);
-        rem.Children.Add(Row("Active hours", "No reminders outside these hours — your cat sleeps too.", hours));
+        rem.Children.Add(Row("Remind me whenever I'm using my PC",
+            "Any time of day: if the screen is on and you're using the keyboard or mouse, the cat reminds you. It waits while you're away and greets you when you're back.",
+            Switch(S.FollowActivity, v => { S.FollowActivity = v; Saved(timing: true); })));
+        rem.Children.Add(Row("Your day", "Used to pace your goal through the day. With the option above off, reminders only come during these hours.", hours));
 
         rem.Children.Add(Row("Smart timing", "Remind a bit more often when you're behind, and relax when you're ahead.",
             Switch(S.SmartTiming, v => { S.SmartTiming = v; Saved(timing: true); })));
-        rem.Children.Add(Row("Remind me later = ", "How long “Remind me later” waits.",
+        rem.Children.Add(Row("If I don't drink, ask again after", "Dismissed or ignored? The cat keeps coming back until you've had some water.",
+            Chips(new[] { ("10 min", 10), ("15 min", 15), ("20 min", 20), ("30 min", 30) }, S.RepeatMinutes, v => { S.RepeatMinutes = v; Saved(timing: false); })));
+        rem.Children.Add(Row("Snooze length", "What “Remind me later” suggests first (you can always pick another time).",
             Chips(new[] { ("5 min", 5), ("10 min", 10), ("15 min", 15), ("30 min", 30) }, S.SnoozeMinutes, v => { S.SnoozeMinutes = v; Saved(timing: false); })));
         rem.Children.Add(Row("Don't interrupt fullscreen", "Wait while a game, video or presentation is fullscreen.",
             Switch(S.RespectFullscreen, v => { S.RespectFullscreen = v; Saved(timing: false); })));
