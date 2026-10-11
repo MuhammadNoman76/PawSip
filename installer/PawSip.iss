@@ -2,7 +2,7 @@
 ;   /DEdition=x64     Windows 10/11, 64-bit Intel/AMD (also runs on ARM64 via emulation)
 ;   /DEdition=arm64   Windows 10/11 on ARM (Snapdragon, Surface Pro X...)
 ;   /DEdition=x86     Windows 10/11, 32-bit
-;   /DEdition=legacy  Windows 7 SP1 / 8 / 8.1 (and newer), needs .NET Framework 4.8
+;   /DEdition=legacy  Windows 7 SP1 / 8.1 (and newer), needs .NET Framework 4.8
 
 #define AppName "PawSip"
 #ifndef AppVersion

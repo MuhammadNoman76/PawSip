@@ -92,7 +92,7 @@ Pick the installer for your PC. Not sure? Most PCs need the first one.
 | **Windows 10 / 11**, 64-bit (Intel or AMD), most PCs | [PawSip-Setup-1.0.1-x64.exe](release/PawSip-Setup-1.0.1-x64.exe) | 48.5 MB |
 | **Windows 11 / 10 on ARM** (Snapdragon, Surface Pro X…) | [PawSip-Setup-1.0.1-arm64.exe](release/PawSip-Setup-1.0.1-arm64.exe) | 42.6 MB |
 | **Windows 10**, 32-bit | [PawSip-Setup-1.0.1-x86.exe](release/PawSip-Setup-1.0.1-x86.exe) | 44.1 MB |
-| **Windows 7 SP1 / 8 / 8.1** (32- or 64-bit) | [PawSip-Setup-1.0.1-win7-8.exe](release/PawSip-Setup-1.0.1-win7-8.exe) | 2.5 MB |
+| **Windows 7 SP1 / 8.1** (32- or 64-bit; Windows 8 needs the free 8.1 update) | [PawSip-Setup-1.0.1-win7-8.exe](release/PawSip-Setup-1.0.1-win7-8.exe) | 2.5 MB |
 
 - The Windows 10/11 installers include everything they need. The Windows 7/8 edition uses Microsoft
   **.NET Framework 4.8**, which most of those PCs already have from Windows Update; setup tells you if it's
@@ -134,7 +134,7 @@ powershell -ExecutionPolicy Bypass -File build.ps1 -SkipInstaller    # apps only
 ```
 
 One codebase, two targets: **.NET 10** (Windows 10/11, published self-contained for x64, ARM64 and x86,
-so the PC doesn't need .NET installed) and **.NET Framework 4.8** (Windows 7 SP1 / 8 / 8.1).
+so the PC doesn't need .NET installed) and **.NET Framework 4.8** (Windows 7 SP1 / 8.1).
 
 ### Project structure
 
