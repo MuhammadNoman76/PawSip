@@ -1,0 +1,260 @@
+﻿<UserControl x:Class="PawSip.Controls.CatView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             SnapsToDevicePixels="False">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="Outline" Color="#5E4339" />
+        <SolidColorBrush x:Key="Fur" Color="#FFCF96" />
+        <SolidColorBrush x:Key="Cream" Color="#FFF6EA" />
+        <SolidColorBrush x:Key="Stripe" Color="#F4A962" />
+        <SolidColorBrush x:Key="EarPink" Color="#FFB7C4" />
+        <SolidColorBrush x:Key="Blush" Color="#FF9DB3" />
+        <SolidColorBrush x:Key="Nose" Color="#FF8DA6" />
+        <SolidColorBrush x:Key="Eye" Color="#3A2C2A" />
+        <SolidColorBrush x:Key="Bean" Color="#FFAFC0" />
+        <Geometry x:Key="Heart">M 10,18 C 10,18 0,12 0,5.5 C 0,1.5 3.5,-1 6.5,0.5 C 8.2,1.3 9.3,2.7 10,4 C 10.7,2.7 11.8,1.3 13.5,0.5 C 16.5,-1 20,1.5 20,5.5 C 20,12 10,18 10,18 Z</Geometry>
+    </UserControl.Resources>
+
+    <Viewbox Stretch="Uniform">
+        <Canvas Width="220" Height="224">
+
+            <!-- Ground shadow (stays on the floor when the cat jumps) -->
+            <Ellipse x:Name="Shadow" Canvas.Left="58" Canvas.Top="203" Width="104" Height="16" Fill="#2A6B4B3E" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform>
+                    <ScaleTransform x:Name="ShadowScale" />
+                </Ellipse.RenderTransform>
+            </Ellipse>
+
+            <Canvas x:Name="Cat" Width="220" Height="224">
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="CatSquash" CenterX="110" CenterY="210" />
+                        <RotateTransform x:Name="CatTilt" CenterX="110" CenterY="210" />
+                        <TranslateTransform x:Name="CatMove" />
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+
+                <!-- Tail -->
+                <Canvas>
+                    <Canvas.RenderTransform>
+                        <RotateTransform x:Name="TailRotate" CenterX="146" CenterY="192" />
+                    </Canvas.RenderTransform>
+                    <Path Data="M 144,194 C 182,192 198,164 190,128" Stroke="{StaticResource Outline}" StrokeThickness="19"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Path Data="M 144,194 C 182,192 198,164 190,128" Stroke="{StaticResource Fur}" StrokeThickness="12"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Path Data="M 186,152 L 197,149 M 184,166 L 194,168" Stroke="{StaticResource Stripe}" StrokeThickness="4"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                </Canvas>
+
+                <!-- Body -->
+                <Canvas>
+                    <Canvas.RenderTransform>
+                        <ScaleTransform x:Name="BodyBreath" CenterX="110" CenterY="206" />
+                    </Canvas.RenderTransform>
+                    <Ellipse Canvas.Left="58" Canvas.Top="186" Width="34" Height="22" Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" />
+                    <Ellipse Canvas.Left="128" Canvas.Top="186" Width="34" Height="22" Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" />
+                    <Path Data="M 74,126 C 56,150 56,190 76,204 L 144,204 C 164,190 164,150 146,126 Z"
+                          Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" StrokeLineJoin="Round" />
+                    <Ellipse Canvas.Left="86" Canvas.Top="146" Width="48" Height="54" Fill="{StaticResource Cream}" />
+                    <Path Data="M 64,158 Q 72,160 75,168 M 62,172 Q 69,174 72,181 M 156,158 Q 148,160 145,168 M 158,172 Q 151,174 148,181"
+                          Stroke="{StaticResource Stripe}" StrokeThickness="3.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                </Canvas>
+
+                <!-- Front paws -->
+                <Canvas x:Name="PawLeft">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform x:Name="PawLeftMove" />
+                    </Canvas.RenderTransform>
+                    <Ellipse Canvas.Left="79" Canvas.Top="192" Width="28" Height="19" Fill="{StaticResource Cream}" Stroke="{StaticResource Outline}" StrokeThickness="3.2" />
+                    <Path Data="M 89,197 L 89,203 M 97,197 L 97,203" Stroke="{StaticResource Outline}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                </Canvas>
+                <Canvas x:Name="PawRight">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform x:Name="PawRightMove" />
+                    </Canvas.RenderTransform>
+                    <Ellipse Canvas.Left="113" Canvas.Top="192" Width="28" Height="19" Fill="{StaticResource Cream}" Stroke="{StaticResource Outline}" StrokeThickness="3.2" />
+                    <Path Data="M 123,197 L 123,203 M 131,197 L 131,203" Stroke="{StaticResource Outline}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                </Canvas>
+
+                <!-- Head -->
+                <Canvas x:Name="Head">
+                    <Canvas.RenderTransform>
+                        <TransformGroup>
+                            <RotateTransform x:Name="HeadTilt" CenterX="110" CenterY="132" />
+                            <TranslateTransform x:Name="HeadBob" />
+                        </TransformGroup>
+                    </Canvas.RenderTransform>
+
+                    <!-- Ears -->
+                    <Canvas>
+                        <Canvas.RenderTransform>
+                            <RotateTransform x:Name="EarLeftRotate" CenterX="70" CenterY="56" />
+                        </Canvas.RenderTransform>
+                        <Path Data="M 50,70 C 44,42 50,22 60,16 C 72,18 86,30 96,44 Z" Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" StrokeLineJoin="Round" />
+                        <Path Data="M 58,60 C 56,44 59,32 64,27 C 71,31 79,38 86,47 Z" Fill="{StaticResource EarPink}" />
+                    </Canvas>
+                    <Canvas>
+                        <Canvas.RenderTransform>
+                            <RotateTransform x:Name="EarRightRotate" CenterX="150" CenterY="56" />
+                        </Canvas.RenderTransform>
+                        <Path Data="M 170,70 C 176,42 170,22 160,16 C 148,18 134,30 124,44 Z" Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" StrokeLineJoin="Round" />
+                        <Path Data="M 162,60 C 164,44 161,32 156,27 C 149,31 141,38 134,47 Z" Fill="{StaticResource EarPink}" />
+                    </Canvas>
+
+                    <!-- Face -->
+                    <Path Data="M 110,30 C 154,30 178,58 178,92 C 178,126 148,142 110,142 C 72,142 42,126 42,92 C 42,58 66,30 110,30 Z"
+                          Fill="{StaticResource Fur}" Stroke="{StaticResource Outline}" StrokeThickness="3.5" />
+                    <Path Data="M 100,38 Q 102,46 99,54 M 110,35 L 110,50 M 120,38 Q 118,46 121,54"
+                          Stroke="{StaticResource Stripe}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Path Data="M 44,84 Q 52,85 56,90 M 176,84 Q 168,85 164,90" Stroke="{StaticResource Stripe}" StrokeThickness="3.5"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Ellipse Canvas.Left="83" Canvas.Top="98" Width="54" Height="36" Fill="{StaticResource Cream}" />
+
+                    <!-- Blush -->
+                    <Canvas>
+                        <Canvas.RenderTransform>
+                            <ScaleTransform x:Name="BlushScale" CenterX="110" CenterY="108" />
+                        </Canvas.RenderTransform>
+                        <Ellipse Canvas.Left="55" Canvas.Top="101" Width="24" Height="13" Fill="{StaticResource Blush}" Opacity="0.55" />
+                        <Ellipse Canvas.Left="141" Canvas.Top="101" Width="24" Height="13" Fill="{StaticResource Blush}" Opacity="0.55" />
+                    </Canvas>
+
+                    <!-- Eyes: open -->
+                    <Canvas x:Name="EyesOpen">
+                        <Canvas.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="EyesBlink" CenterY="90" />
+                                <TranslateTransform x:Name="EyesLook" />
+                            </TransformGroup>
+                        </Canvas.RenderTransform>
+                        <Ellipse Canvas.Left="72" Canvas.Top="77" Width="20" Height="25" Fill="{StaticResource Eye}" />
+                        <Ellipse Canvas.Left="80" Canvas.Top="80" Width="8" Height="8" Fill="White" />
+                        <Ellipse Canvas.Left="75" Canvas.Top="92" Width="4" Height="4" Fill="White" />
+                        <Ellipse Canvas.Left="128" Canvas.Top="77" Width="20" Height="25" Fill="{StaticResource Eye}" />
+                        <Ellipse Canvas.Left="136" Canvas.Top="80" Width="8" Height="8" Fill="White" />
+                        <Ellipse Canvas.Left="131" Canvas.Top="92" Width="4" Height="4" Fill="White" />
+                    </Canvas>
+                    <!-- Eyes: happy ^ ^ -->
+                    <Path x:Name="EyesHappy" Visibility="Collapsed" Data="M 72,94 Q 82,80 92,94 M 128,94 Q 138,80 148,94"
+                          Stroke="{StaticResource Outline}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <!-- Eyes: sleeping -->
+                    <Path x:Name="EyesSleep" Visibility="Collapsed" Data="M 72,89 Q 82,98 92,89 M 128,89 Q 138,98 148,89"
+                          Stroke="{StaticResource Outline}" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+
+                    <!-- Nose & mouth -->
+                    <Path Data="M 104,106 Q 110,102 116,106 Q 114,111 110,112 Q 106,111 104,106 Z" Fill="{StaticResource Nose}"
+                          Stroke="{StaticResource Outline}" StrokeThickness="1.6" StrokeLineJoin="Round" />
+                    <Path x:Name="MouthClosed" Data="M 100,114 Q 105,121 110,114 Q 115,121 120,114" Stroke="{StaticResource Outline}"
+                          StrokeThickness="2.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Canvas x:Name="MouthOpen" Visibility="Collapsed">
+                        <Path Data="M 101,114 Q 110,113 119,114 Q 117,129 110,130 Q 103,129 101,114 Z" Fill="#8E3D4C" Stroke="{StaticResource Outline}"
+                              StrokeThickness="2.4" StrokeLineJoin="Round" />
+                        <Ellipse Canvas.Left="104" Canvas.Top="121" Width="12" Height="8" Fill="#FF98AE" />
+                    </Canvas>
+
+                    <!-- Whiskers -->
+                    <Path Data="M 34,104 L 60,108 M 36,116 L 61,115 M 186,104 L 160,108 M 184,116 L 159,115" Stroke="{StaticResource Outline}"
+                          StrokeThickness="2" Opacity="0.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                </Canvas>
+
+                <!-- Glass of water (drinking) - held in front of the face -->
+                <Canvas x:Name="Glass" Visibility="Collapsed">
+                    <Canvas.RenderTransform>
+                        <TranslateTransform x:Name="GlassMove" />
+                    </Canvas.RenderTransform>
+                    <Path Data="M 116,132 L 111,117" Stroke="#FF8DA6" StrokeThickness="4.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Path Data="M 92,128 L 128,128 L 124,172 L 96,172 Z" Fill="#E6F6FF" />
+                    <Canvas>
+                        <Canvas.Clip>
+                            <PathGeometry Figures="M 92,128 L 128,128 L 124,172 L 96,172 Z" />
+                        </Canvas.Clip>
+                        <Rectangle Canvas.Left="88" Canvas.Top="137" Width="44" Height="40" Fill="#79C7F4">
+                            <Rectangle.RenderTransform>
+                                <TranslateTransform x:Name="WaterLevel" />
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
+                        <Ellipse Canvas.Left="102" Canvas.Top="158" Width="5" Height="5" Fill="#C9ECFF">
+                            <Ellipse.RenderTransform>
+                                <TranslateTransform x:Name="Bubble1" />
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Canvas.Left="113" Canvas.Top="164" Width="4" Height="4" Fill="#C9ECFF">
+                            <Ellipse.RenderTransform>
+                                <TranslateTransform x:Name="Bubble2" />
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Canvas>
+                    <Path Data="M 92,128 L 128,128 L 124,172 L 96,172 Z" Stroke="#7FBFE6" StrokeThickness="3" StrokeLineJoin="Round" />
+                    <Path Data="M 99,136 L 101,162" Stroke="White" StrokeThickness="3" Opacity="0.75" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <!-- paws holding the glass -->
+                    <Ellipse Canvas.Left="80" Canvas.Top="142" Width="22" Height="18" Fill="#FFF6EA" Stroke="#5E4339" StrokeThickness="3.2" />
+                    <Ellipse Canvas.Left="118" Canvas.Top="142" Width="22" Height="18" Fill="#FFF6EA" Stroke="#5E4339" StrokeThickness="3.2" />
+                </Canvas>
+
+                <!-- Waving arm (drawn over the head) -->
+                <Canvas x:Name="WaveArm" Visibility="Collapsed">
+                    <Canvas.RenderTransform>
+                        <RotateTransform x:Name="WaveRotate" CenterX="146" CenterY="156" />
+                    </Canvas.RenderTransform>
+                    <Path Data="M 142,158 C 160,146 176,128 184,112" Stroke="{StaticResource Outline}" StrokeThickness="21"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Path Data="M 142,158 C 160,146 176,128 184,112" Stroke="{StaticResource Fur}" StrokeThickness="14"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    <Ellipse Canvas.Left="170" Canvas.Top="88" Width="30" Height="28" Fill="{StaticResource Cream}" Stroke="{StaticResource Outline}" StrokeThickness="3.2" />
+                    <Ellipse Canvas.Left="180" Canvas.Top="100" Width="10" Height="9" Fill="{StaticResource Bean}" />
+                    <Ellipse Canvas.Left="174" Canvas.Top="93" Width="5" Height="5" Fill="{StaticResource Bean}" />
+                    <Ellipse Canvas.Left="182" Canvas.Top="91" Width="5" Height="5" Fill="{StaticResource Bean}" />
+                    <Ellipse Canvas.Left="190" Canvas.Top="94" Width="5" Height="5" Fill="{StaticResource Bean}" />
+                </Canvas>
+
+                <!-- Zzz -->
+                <Canvas x:Name="Zzz" Visibility="Collapsed">
+                    <TextBlock x:Name="Z1" Canvas.Left="168" Canvas.Top="28" Text="z" FontSize="18" FontWeight="Bold" Foreground="#8E9BD8" FontFamily="Segoe UI">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="Z1Move" />
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                    <TextBlock x:Name="Z2" Canvas.Left="182" Canvas.Top="10" Text="z" FontSize="23" FontWeight="Bold" Foreground="#8E9BD8" FontFamily="Segoe UI">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="Z2Move" />
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                    <TextBlock x:Name="Z3" Canvas.Left="196" Canvas.Top="-10" Text="Z" FontSize="28" FontWeight="Bold" Foreground="#8E9BD8" FontFamily="Segoe UI">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="Z3Move" />
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Canvas>
+
+                <!-- Hearts -->
+                <Canvas x:Name="Hearts" IsHitTestVisible="False">
+                    <Path x:Name="Heart1" Data="{StaticResource Heart}" Fill="#FF7FA6" Canvas.Left="40" Canvas.Top="40" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="Heart1Scale" />
+                                <TranslateTransform x:Name="Heart1Move" />
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+                    <Path x:Name="Heart2" Data="{StaticResource Heart}" Fill="#FF9BB8" Canvas.Left="100" Canvas.Top="10" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="Heart2Scale" />
+                                <TranslateTransform x:Name="Heart2Move" />
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+                    <Path x:Name="Heart3" Data="{StaticResource Heart}" Fill="#FF7FA6" Canvas.Left="160" Canvas.Top="34" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="Heart3Scale" />
+                                <TranslateTransform x:Name="Heart3Move" />
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+                </Canvas>
+            </Canvas>
+        </Canvas>
+    </Viewbox>
+</UserControl>
