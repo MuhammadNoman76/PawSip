@@ -126,7 +126,7 @@ public sealed class BarChart : FrameworkElement
             var tip = Text(item.Detail, 12, Brushes.White, dpi);
             var w = tip.Width + 20;
             var cx = slot * _hover + slot / 2;
-            var tx = Math.Clamp(cx - w / 2, 0, Math.Max(0, ActualWidth - w));
+            var tx = MathEx.Clamp(cx - w / 2, 0, Math.Max(0, ActualWidth - w));
             var rect = new Rect(tx, 0, w, 24);
             dc.DrawRoundedRectangle(TipBrush, null, rect, 8, 8);
             dc.DrawText(tip, new Point(tx + 10, 4));

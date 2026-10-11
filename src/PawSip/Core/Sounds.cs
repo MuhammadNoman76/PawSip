@@ -19,7 +19,7 @@ public static class Sounds
                 ReminderSound.Drop => Drop(),
                 _ => Meow(),
             };
-            var wav = ToWav(samples, Math.Clamp(volume, 0, 100) / 100.0);
+            var wav = ToWav(samples, MathEx.Clamp(volume, 0, 100) / 100.0);
             s_player?.Dispose();
             s_player = new SoundPlayer(new MemoryStream(wav));
             s_player.Play();
@@ -155,7 +155,7 @@ public static class Sounds
         w.Write("data"u8.ToArray());
         w.Write(dataBytes);
         foreach (var s in samples)
-            w.Write((short)Math.Clamp(s * gain * short.MaxValue, short.MinValue, short.MaxValue));
+            w.Write((short)MathEx.Clamp(s * gain * short.MaxValue, short.MinValue, short.MaxValue));
         w.Flush();
         return ms.ToArray();
     }

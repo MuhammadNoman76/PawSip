@@ -218,7 +218,7 @@ public partial class CatReminderWindow : Window
 
     private void UpdateProgress(bool animate)
     {
-        var fraction = Math.Clamp(_hydration.Fraction, 0, 1);
+        var fraction = MathEx.Clamp(_hydration.Fraction, 0, 1);
         ProgressText.Text = _hydration.GoalReached
             ? $"{_hydration.TodayMl:N0} / {_hydration.GoalMl:N0} ml · goal reached!"
             : $"{_hydration.TodayMl:N0} / {_hydration.GoalMl:N0} ml · {_hydration.RemainingGlasses} {(_hydration.RemainingGlasses == 1 ? "glass" : "glasses")} to go";

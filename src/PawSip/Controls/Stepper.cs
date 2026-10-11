@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -51,7 +51,7 @@ public sealed class Stepper : Border
         get => _value;
         set
         {
-            _value = Math.Clamp(value, Minimum, Maximum);
+            _value = MathEx.Clamp(value, Minimum, Maximum);
             _text.Text = Format(_value);
         }
     }
@@ -84,7 +84,7 @@ public sealed class Stepper : Border
                 if (next > Maximum) next -= range;
                 if (next < Minimum) next += range;
             }
-            next = Math.Clamp(next, Minimum, Maximum);
+            next = MathEx.Clamp(next, Minimum, Maximum);
             if (Math.Abs(next - _value) < 1e-9) return;
             Value = next;
             ValueChanged?.Invoke(_value);

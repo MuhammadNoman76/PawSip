@@ -55,7 +55,7 @@ public sealed class MonthHeatmap : FrameworkElement
             if (future || day.Ml <= 0) fill = Empty;
             else
             {
-                var f = Math.Clamp(day.Fraction, 0.12, 1);
+                var f = MathEx.Clamp(day.Fraction, 0.12, 1);
                 fill = new SolidColorBrush(Lerp(Low, High, f));
             }
             dc.DrawRoundedRectangle(fill, day.Date == DateTime.Today ? TodayPen : null, rect, 10, 10);

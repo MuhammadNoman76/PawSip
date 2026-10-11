@@ -72,15 +72,15 @@ public sealed class DataStore
 
     private static void Sanitize(Settings s)
     {
-        s.RepeatMinutes = Math.Clamp(s.RepeatMinutes, 5, 120);
-        s.GlassMl = Math.Clamp(s.GlassMl, 50, 1500);
-        s.GoalMl = Math.Clamp(s.GoalMl, 250, 10000);
-        s.IntervalMinutes = Math.Clamp(s.IntervalMinutes, 10, 240);
-        s.SnoozeMinutes = Math.Clamp(s.SnoozeMinutes, 1, 120);
-        s.ActiveStartMinutes = Math.Clamp(s.ActiveStartMinutes, 0, 24 * 60 - 1);
-        s.ActiveEndMinutes = Math.Clamp(s.ActiveEndMinutes, 0, 24 * 60);
-        s.Volume = Math.Clamp(s.Volume, 0, 100);
-        s.AutoHideMinutes = Math.Clamp(s.AutoHideMinutes, 0, 30);
+        s.RepeatMinutes = MathEx.Clamp(s.RepeatMinutes, 5, 120);
+        s.GlassMl = MathEx.Clamp(s.GlassMl, 50, 1500);
+        s.GoalMl = MathEx.Clamp(s.GoalMl, 250, 10000);
+        s.IntervalMinutes = MathEx.Clamp(s.IntervalMinutes, 10, 240);
+        s.SnoozeMinutes = MathEx.Clamp(s.SnoozeMinutes, 1, 120);
+        s.ActiveStartMinutes = MathEx.Clamp(s.ActiveStartMinutes, 0, 24 * 60 - 1);
+        s.ActiveEndMinutes = MathEx.Clamp(s.ActiveEndMinutes, 0, 24 * 60);
+        s.Volume = MathEx.Clamp(s.Volume, 0, 100);
+        s.AutoHideMinutes = MathEx.Clamp(s.AutoHideMinutes, 0, 30);
     }
 
     /// <summary>Saves shortly after the last change (several quick changes = one write).</summary>
@@ -97,7 +97,7 @@ public sealed class DataStore
             Directory.CreateDirectory(Folder);
             var tmp = FilePath + ".tmp";
             File.WriteAllText(tmp, JsonSerializer.Serialize(Data, Json));
-            File.Move(tmp, FilePath, overwrite: true);
+            Compat.MoveOverwrite(tmp, FilePath);
         }
         catch (Exception ex)
         {

@@ -1,14 +1,17 @@
-# Builds PawSip and its installer.
-#   powershell -ExecutionPolicy Bypass -File build.ps1
-# Output: dist\PawSip-Setup-<version>.exe  (the app itself is in publish\)
+# Builds PawSip for every supported Windows version and creates the installers.
+#   powershell -ExecutionPolicy Bypass -File build.ps1                    # all editions
+#   powershell -ExecutionPolicy Bypass -File build.ps1 -Editions x64      # just one
+# Output: dist\PawSip-Setup-<version>-<edition>.exe and dist\SHA256SUMS.txt
 param(
     [string]$Version = "1.0.1",
+    [ValidateSet("x64", "arm64", "x86", "legacy")]
+    [string[]]$Editions = @("x64", "arm64", "x86", "legacy"),
     [switch]$SkipInstaller
 )
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $project = Join-Path $root "src\PawSip\PawSip.csproj"
-$publish = Join-Path $root "publish"
+$publishRoot = Join-Path $root "publish"
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 $env:DOTNET_NOLOGO = '1'
 
@@ -27,21 +30,38 @@ $iscc = Find-Tool @(
     "$env:ProgramFiles\Inno Setup 6\ISCC.exe")
 if (-not $iscc -and -not $SkipInstaller) { throw "Inno Setup 6 not found. Install it from https://jrsoftware.org/isdl.php" }
 
-Write-Host "==> Publishing PawSip $Version" -ForegroundColor Cyan
-$running = Get-Process PawSip -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.Path.StartsWith($publish, [StringComparison]::OrdinalIgnoreCase) }
-if ($running) { throw "PawSip is running from $publish - exit it from the tray and build again." }
-if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
-& $dotnet publish $project -c Release -r win-x64 --self-contained true -o $publish -p:DebugType=none -p:Version=$Version
-if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
+$running = Get-Process PawSip -ErrorAction SilentlyContinue | Where-Object { $_.Path -and $_.Path.StartsWith($publishRoot, [StringComparison]::OrdinalIgnoreCase) }
+if ($running) { throw "PawSip is running from $publishRoot - exit it from the tray and build again." }
 
-if ($SkipInstaller) {
-    Write-Host "Done: $publish" -ForegroundColor Green
-    return
+foreach ($edition in $Editions) {
+    $out = Join-Path $publishRoot $edition
+    if (Test-Path $out) { Remove-Item $out -Recurse -Force }
+
+    if ($edition -eq "legacy") {
+        # Windows 7 SP1 / 8 / 8.1: .NET Framework 4.8, which Windows already has (or gets from Windows Update).
+        Write-Host "==> Publishing PawSip $Version for Windows 7 / 8 (.NET Framework 4.8)" -ForegroundColor Cyan
+        & $dotnet publish $project -c Release -f net48 -o $out -p:DebugType=none -p:Version=$Version
+    }
+    else {
+        # Windows 10 / 11: self-contained, nothing else to install.
+        Write-Host "==> Publishing PawSip $Version for Windows 10 / 11 ($edition)" -ForegroundColor Cyan
+        & $dotnet publish $project -c Release -f net10.0-windows -r "win-$edition" --self-contained true -o $out -p:DebugType=none -p:Version=$Version
+    }
+    if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $edition" }
+
+    if (-not $SkipInstaller) {
+        Write-Host "==> Compiling installer ($edition)" -ForegroundColor Cyan
+        & $iscc /Q "/DAppVersion=$Version" "/DEdition=$edition" (Join-Path $root "installer\PawSip.iss")
+        if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed for $edition" }
+    }
 }
 
-Write-Host "==> Compiling installer" -ForegroundColor Cyan
-& $iscc "/DAppVersion=$Version" (Join-Path $root "installer\PawSip.iss")
-if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
-
-$setup = Join-Path $root "dist\PawSip-Setup-$Version.exe"
-Write-Host ("Done: {0} ({1:N0} MB)" -f $setup, ((Get-Item $setup).Length / 1MB)) -ForegroundColor Green
+if (-not $SkipInstaller) {
+    $sums = Get-ChildItem (Join-Path $root "dist") -Filter "PawSip-Setup-$Version-*.exe" | Sort-Object Name | ForEach-Object {
+        "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
+    }
+    Set-Content -Path (Join-Path $root "dist\SHA256SUMS.txt") -Value $sums -Encoding ASCII
+    Get-ChildItem (Join-Path $root "dist") -Filter "PawSip-Setup-$Version-*.exe" | Sort-Object Name | ForEach-Object {
+        Write-Host ("Done: {0} ({1:N1} MB)" -f $_.Name, ($_.Length / 1MB)) -ForegroundColor Green
+    }
+}

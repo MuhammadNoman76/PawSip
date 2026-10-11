@@ -187,7 +187,7 @@ public sealed class ReminderScheduler
         var tod = (int)at.TimeOfDay.TotalMinutes;
         var elapsed = tod >= start ? tod - start : tod + 24 * 60 - start;
         if (!IsActive(at)) return tod < start && end > start ? 0 : 1;
-        return Math.Clamp(elapsed / (double)length, 0, 1);
+        return MathEx.Clamp(elapsed / (double)length, 0, 1);
     }
 
     /// <summary>"on track" / "a little behind" / "ahead" for the dashboard.</summary>

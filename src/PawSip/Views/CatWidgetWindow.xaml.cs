@@ -205,7 +205,7 @@ public partial class CatWidgetWindow : Window
     {
         var h = _app.Hydration;
         AmountText.Text = h.GoalReached ? $"{h.TodayMl:N0} ml · goal done!" : $"{h.TodayMl:N0} / {h.GoalMl:N0} ml";
-        var fraction = Math.Clamp(h.Fraction, 0, 1);
+        var fraction = MathEx.Clamp(h.Fraction, 0, 1);
         if (Settings.Animations)
             ProgressScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(fraction, TimeSpan.FromMilliseconds(700)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
         else

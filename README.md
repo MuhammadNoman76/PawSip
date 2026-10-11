@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="release/PawSip-Setup-1.0.1.exe"><b>⬇ Download PawSip for Windows</b></a>
-  &nbsp;·&nbsp; Windows 10 / 11 (64-bit) &nbsp;·&nbsp; free, no account, works offline
+  <a href="#download"><b>⬇ Download PawSip for Windows</b></a>
+  &nbsp;·&nbsp; Windows 7, 8, 10 and 11 &nbsp;·&nbsp; free, no account, works offline
 </p>
 
 <p align="center">
@@ -83,11 +83,29 @@ quiet outside your active hours.
 ### 🔊 Sounds
 - A soft synthesized **meow** (default), a chime, a water drop, or silence, with adjustable volume.
 
+## Download
+
+Pick the installer for your PC. Not sure? Most PCs need the first one.
+
+| Your Windows | Download | Size |
+|---|---|---|
+| **Windows 10 / 11**, 64-bit (Intel or AMD), most PCs | [PawSip-Setup-1.0.1-x64.exe](release/PawSip-Setup-1.0.1-x64.exe) | 48.5 MB |
+| **Windows 11 / 10 on ARM** (Snapdragon, Surface Pro X…) | [PawSip-Setup-1.0.1-arm64.exe](release/PawSip-Setup-1.0.1-arm64.exe) | 42.6 MB |
+| **Windows 10**, 32-bit | [PawSip-Setup-1.0.1-x86.exe](release/PawSip-Setup-1.0.1-x86.exe) | 44.1 MB |
+| **Windows 7 SP1 / 8 / 8.1** (32- or 64-bit) | [PawSip-Setup-1.0.1-win7-8.exe](release/PawSip-Setup-1.0.1-win7-8.exe) | 2.5 MB |
+
+- The Windows 10/11 installers include everything they need. The Windows 7/8 edition uses Microsoft
+  **.NET Framework 4.8**, which most of those PCs already have from Windows Update; setup tells you if it's
+  missing.
+- Find your Windows version and type in *Settings › System › About* (Windows 7/8: *Control Panel › System*).
+- SHA-256 checksums: [release/SHA256SUMS.txt](release/SHA256SUMS.txt).
+- The installers aren't code-signed yet, so Windows SmartScreen may say *"Windows protected your PC"*.
+  Click **More info › Run anyway**.
+
 ## Install
 
-1. Download **[PawSip-Setup-1.0.1.exe](release/PawSip-Setup-1.0.1.exe)**.
-2. Run it. No admin rights needed; it installs just for your user account.
-3. Keep **Start PawSip with Windows** ticked so your cat is always there.
+1. Run the installer. No admin rights needed; it installs just for your user account.
+2. Keep **Start PawSip with Windows** ticked so your cat is always there.
 
 Uninstall from *Settings › Apps*. Your history stays in `%APPDATA%\PawSip` in case you reinstall.
 
@@ -110,11 +128,13 @@ no tracking.
 Requirements: [.NET 10 SDK](https://dot.net) and [Inno Setup 6](https://jrsoftware.org/isdl.php) (for the installer).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File build.ps1                 # app + installer -> dist\
-powershell -ExecutionPolicy Bypass -File build.ps1 -SkipInstaller  # app only -> publish\
+powershell -ExecutionPolicy Bypass -File build.ps1                   # all four installers -> dist\
+powershell -ExecutionPolicy Bypass -File build.ps1 -Editions x64     # just one edition
+powershell -ExecutionPolicy Bypass -File build.ps1 -SkipInstaller    # apps only -> publish\<edition>
 ```
 
-The app is published self-contained, so the target PC doesn't need .NET installed.
+One codebase, two targets: **.NET 10** (Windows 10/11, published self-contained for x64, ARM64 and x86,
+so the PC doesn't need .NET installed) and **.NET Framework 4.8** (Windows 7 SP1 / 8 / 8.1).
 
 ### Project structure
 

@@ -31,11 +31,24 @@ internal static class Native
         public uint dwTime;
     }
 
+    // 64-bit Windows exports Get/SetWindowLongPtrW; 32-bit Windows only has Get/SetWindowLongW.
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
-    public static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
+    private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongW")]
+    private static extern int GetWindowLong32(IntPtr hWnd, int nIndex);
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
-    public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr value);
+    private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr value);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongW")]
+    private static extern int SetWindowLong32(IntPtr hWnd, int nIndex, int value);
+
+    public static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex) =>
+        IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, nIndex) : new IntPtr(GetWindowLong32(hWnd, nIndex));
+
+    public static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr value) =>
+        IntPtr.Size == 8 ? SetWindowLongPtr64(hWnd, nIndex, value) : new IntPtr(SetWindowLong32(hWnd, nIndex, value.ToInt32()));
 
     [DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();

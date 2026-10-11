@@ -15,7 +15,7 @@ public static class StartupManager
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: true) ?? Registry.CurrentUser.CreateSubKey(RunKey);
             if (enabled)
             {
-                var exe = Environment.ProcessPath;
+                var exe = Compat.ExecutablePath;
                 if (string.IsNullOrEmpty(exe)) return;
                 var command = $"\"{exe}\" --background";
                 if (!string.Equals(key.GetValue(ValueName) as string, command, StringComparison.OrdinalIgnoreCase))
