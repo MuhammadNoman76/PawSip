@@ -15,6 +15,8 @@ public sealed class TrayIcon : IDisposable
     private readonly Forms.ToolStripMenuItem _pause = new("Pause reminders");
     private readonly Forms.ToolStripMenuItem _resume = new("Resume reminders");
     private readonly Forms.ToolStripMenuItem _widget = new("Show desktop cat");
+    private readonly Forms.ToolStripMenuItem _update = new() { Visible = false };
+    private readonly Forms.ToolStripMenuItem _checkUpdates = new("Check for updates…");
 
     public TrayIcon(App app)
     {
@@ -50,6 +52,9 @@ public sealed class TrayIcon : IDisposable
         _pause.DropDown.BackColor = Color.White;
         _resume.Click += (_, _) => _app.Scheduler.Resume();
 
+        _update.Click += (_, _) => _app.ShowMain(dashboard: true);
+        _checkUpdates.Click += (_, _) => _app.CheckForUpdatesFromTray();
+
         var exit = new Forms.ToolStripMenuItem("Exit PawSip");
         exit.Click += (_, _) => _app.ExitApp();
 
@@ -58,7 +63,7 @@ public sealed class TrayIcon : IDisposable
             _status, new Forms.ToolStripSeparator(),
             open, _drink, showCat, _widget, new Forms.ToolStripSeparator(),
             _pause, _resume, new Forms.ToolStripSeparator(),
-            exit,
+            _update, _checkUpdates, exit,
         });
         menu.Opening += (_, _) => Refresh();
 
@@ -90,6 +95,12 @@ public sealed class TrayIcon : IDisposable
         _pause.Visible = !s.IsPaused && _app.Store.Settings.RemindersEnabled;
         _resume.Visible = s.IsPaused;
         _widget.Checked = _app.WidgetVisible;
+
+        var update = _app.AvailableUpdate;
+        _update.Visible = update != null;
+        _update.Text = update == null ? "" : _app.UpdateStage == UpdateStage.Offered ? $"Update to PawSip {update.Version}…" : $"Updating to PawSip {update.Version}…";
+        _checkUpdates.Text = _app.IsCheckingForUpdates ? "Checking for updates…" : "Check for updates…";
+        _checkUpdates.Enabled = !_app.IsCheckingForUpdates;
 
         var next = !_app.Store.Settings.RemindersEnabled ? "reminders off"
             : s.IsPaused ? $"paused until {s.PausedUntil:t}"

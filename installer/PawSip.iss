@@ -3,20 +3,32 @@
 ;   /DEdition=arm64   Windows 10/11 on ARM (Snapdragon, Surface Pro X...)
 ;   /DEdition=x86     Windows 10/11, 32-bit
 ;   /DEdition=legacy  Windows 7 SP1 / 8.1 (and newer), needs .NET Framework 4.8
+;   Testing only: /DAppIdOverride={{GUID} and /DAppName=... give a side-by-side copy its own uninstall entry and
+;   shortcuts, so it can be installed, updated and removed without touching a real PawSip install;
+;   /DPublishDir=... packages another build.
 
-#define AppName "PawSip"
+#ifndef AppName
+  #define AppName "PawSip"
+#endif
 #ifndef AppVersion
-  #define AppVersion "1.0.1"
+  #define AppVersion "1.0.2"
+#endif
+#ifndef AppIdOverride
+  #define AppIdValue "{{B7D2F4A1-3C8E-4F6B-9A21-5E7C0D9A4B13}"
+#else
+  #define AppIdValue AppIdOverride
 #endif
 #ifndef Edition
   #define Edition "x64"
 #endif
 #define AppExe "PawSip.exe"
-#define PublishDir "..\publish\" + Edition
+#ifndef PublishDir
+  #define PublishDir "..\publish\" + Edition
+#endif
 
 [Setup]
 ; Same AppId for every edition: installing another edition simply replaces the current one.
-AppId={{B7D2F4A1-3C8E-4F6B-9A21-5E7C0D9A4B13}
+AppId={#AppIdValue}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
@@ -63,6 +75,17 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "startup"; Description: "Start {#AppName} with Windows (recommended, runs quietly in the tray)"; GroupDescription: "Startup:"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[InstallDelete]
+; Updating: remove the previous version's program files first, so nothing obsolete is left behind (for example
+; after switching editions). Only in PawSip's own folder; your data (%APPDATA%\PawSip) and the uninstaller
+; (unins000.*) are never touched.
+Type: files; Name: "{app}\*.dll"; Check: IsOwnFolder
+Type: files; Name: "{app}\*.json"; Check: IsOwnFolder
+Type: files; Name: "{app}\*.config"; Check: IsOwnFolder
+Type: files; Name: "{app}\*.pdb"; Check: IsOwnFolder
+Type: files; Name: "{app}\createdump.exe"; Check: IsOwnFolder
+Type: files; Name: "{app}\{#AppExe}"; Check: IsOwnFolder
+
 [Files]
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
@@ -75,16 +98,57 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "{#AppName}"; Flags: uninsdeletevalue
 
 [Run]
-Filename: "{app}\{#AppExe}"; Parameters: "--set-startup on"; Flags: runhidden waituntilterminated; Tasks: startup
-Filename: "{app}\{#AppExe}"; Parameters: "--set-startup off"; Flags: runhidden waituntilterminated; Tasks: not startup
+; Stores the startup choice from setup. Skipped for PawSip's own automatic updates (/RELAUNCH=1), which keep
+; whatever "Start with Windows" is set to in the app.
+Filename: "{app}\{#AppExe}"; Parameters: "--set-startup on"; Flags: runhidden waituntilterminated; Tasks: startup; Check: not RelaunchRequested
+Filename: "{app}\{#AppExe}"; Parameters: "--set-startup off"; Flags: runhidden waituntilterminated; Tasks: not startup; Check: not RelaunchRequested
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; PawSip's updater runs setup with /VERYSILENT ... /RELAUNCH=1: start it again afterwards, quietly in the tray.
+Filename: "{app}\{#AppExe}"; Parameters: "--background --updated"; Flags: nowait runasoriginaluser; Check: RelaunchRequested
 
 [Code]
+// /RELAUNCH=1 on the command line (passed by PawSip's updater).
+function RelaunchRequested(): Boolean;
+begin
+  Result := ExpandConstant('{param:RELAUNCH|0}') = '1';
+end;
+
+// The install folder is PawSip's own (named PawSip and holding PawSip.exe), so old program files can go.
+function IsOwnFolder(): Boolean;
+begin
+  Result := (CompareText(ExtractFileName(RemoveBackslashUnlessRoot(ExpandConstant('{app}'))), 'PawSip') = 0) and
+            FileExists(ExpandConstant('{app}\{#AppExe}'));
+end;
+
+// Closes PawSip if it runs from this install folder, so its files can be replaced or removed.
+// Copies running from anywhere else are left alone.
 procedure StopPawSip();
 var
-  ResultCode: Integer;
+  Locator, Service, Processes, Process: Variant;
+  Folder, ExePath: String;
+  I, ResultCode: Integer;
 begin
-  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM {#AppExe}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Folder := AddBackslash(ExpandConstant('{app}'));
+  try
+    Locator := CreateOleObject('WbemScripting.SWbemLocator');
+    Service := Locator.ConnectServer('.', 'root\CIMV2');
+    Processes := Service.ExecQuery('SELECT ProcessId, ExecutablePath FROM Win32_Process WHERE Name = ''{#AppExe}''');
+    for I := 0 to Processes.Count - 1 do
+    begin
+      Process := Processes.ItemIndex(I);
+      if not VarIsNull(Process.ExecutablePath) then
+      begin
+        ExePath := Process.ExecutablePath;
+        if CompareText(Copy(ExePath, 1, Length(Folder)), Folder) = 0 then
+        begin
+          Log('Closing PawSip (process ' + IntToStr(Process.ProcessId) + ') at ' + ExePath);
+          Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /PID ' + IntToStr(Process.ProcessId), '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        end;
+      end;
+    end;
+  except
+    Log('Could not look for a running PawSip: ' + GetExceptionMessage);
+  end;
 end;
 
 #if Edition == "legacy"

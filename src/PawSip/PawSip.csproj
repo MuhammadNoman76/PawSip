@@ -19,7 +19,7 @@
     <ApplicationIcon>Assets\PawSip.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
 
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Product>PawSip</Product>
     <Company>Muhammad Noman</Company>
     <Authors>Muhammad Noman</Authors>
@@ -41,6 +41,21 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+
+  <!--
+    Which installer this build belongs to (x64, arm64, x86 or win7-8): the updater downloads the same edition.
+    build.ps1 passes -p:PawSipEdition=...; otherwise it follows the target.
+  -->
+  <PropertyGroup>
+    <PawSipEdition Condition="'$(PawSipEdition)' == '' and '$(TargetFramework)' == 'net48'">win7-8</PawSipEdition>
+    <PawSipEdition Condition="'$(PawSipEdition)' == '' and '$(RuntimeIdentifier)' == 'win-arm64'">arm64</PawSipEdition>
+    <PawSipEdition Condition="'$(PawSipEdition)' == '' and '$(RuntimeIdentifier)' == 'win-x86'">x86</PawSipEdition>
+    <PawSipEdition Condition="'$(PawSipEdition)' == ''">x64</PawSipEdition>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="Edition" Value="$(PawSipEdition)" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <PackageReference Include="System.Text.Json" Version="8.0.6" />

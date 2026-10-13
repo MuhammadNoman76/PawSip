@@ -56,6 +56,9 @@ public partial class MainWindow : Window
 
     private void GoToStats() => NavStats.IsChecked = true;
 
+    /// <summary>Opens the dashboard (an update offer is shown there).</summary>
+    public void ShowDashboard() => NavDashboard.IsChecked = true;
+
     private void Navigate(UserControl page, bool animate = true)
     {
         PageHost.Content = page;

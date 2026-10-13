@@ -52,6 +52,10 @@ public sealed class Settings
     // System
     public bool StartWithWindows { get; set; } = true;
 
+    // Updates (see Updater and App.Updates.cs): look for a new version now and then; a version the user chose to skip.
+    public bool CheckForUpdates { get; set; } = true;
+    public string? SkippedVersion { get; set; }
+
     public int GoalGlasses => Math.Max(1, (int)Math.Round(GoalMl / (double)Math.Max(1, GlassMl)));
 }
 
@@ -90,4 +94,7 @@ public sealed class AppData
     public double? WidgetTop { get; set; }
     public bool TrayHintShown { get; set; }
     public bool StartupConfigured { get; set; }
+
+    /// <summary>When the update feed was last read successfully (UTC).</summary>
+    public DateTime? LastUpdateCheck { get; set; }
 }

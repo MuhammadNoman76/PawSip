@@ -3,7 +3,7 @@
 #   powershell -ExecutionPolicy Bypass -File build.ps1 -Editions x64      # just one
 # Output: dist\PawSip-Setup-<version>-<edition>.exe and dist\SHA256SUMS.txt
 param(
-    [string]$Version = "1.0.1",
+    [string]$Version = "1.0.2",
     [ValidateSet("x64", "arm64", "x86", "legacy")]
     [string[]]$Editions = @("x64", "arm64", "x86", "legacy"),
     [switch]$SkipInstaller
@@ -35,17 +35,19 @@ if ($running) { throw "PawSip is running from $publishRoot - exit it from the tr
 
 foreach ($edition in $Editions) {
     $out = Join-Path $publishRoot $edition
+    # Embedded in the app (AssemblyMetadata "Edition"): the updater downloads the installer for the same edition.
+    $feedEdition = if ($edition -eq "legacy") { "win7-8" } else { $edition }
     if (Test-Path $out) { Remove-Item $out -Recurse -Force }
 
     if ($edition -eq "legacy") {
         # Windows 7 SP1 / 8 / 8.1: .NET Framework 4.8, which Windows already has (or gets from Windows Update).
         Write-Host "==> Publishing PawSip $Version for Windows 7 / 8 (.NET Framework 4.8)" -ForegroundColor Cyan
-        & $dotnet publish $project -c Release -f net48 -o $out -p:DebugType=none -p:Version=$Version
+        & $dotnet publish $project -c Release -f net48 -o $out -p:DebugType=none -p:Version=$Version -p:PawSipEdition=$feedEdition
     }
     else {
         # Windows 10 / 11: self-contained, nothing else to install.
         Write-Host "==> Publishing PawSip $Version for Windows 10 / 11 ($edition)" -ForegroundColor Cyan
-        & $dotnet publish $project -c Release -f net10.0-windows -r "win-$edition" --self-contained true -o $out -p:DebugType=none -p:Version=$Version
+        & $dotnet publish $project -c Release -f net10.0-windows -r "win-$edition" --self-contained true -o $out -p:DebugType=none -p:Version=$Version -p:PawSipEdition=$feedEdition
     }
     if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $edition" }
 

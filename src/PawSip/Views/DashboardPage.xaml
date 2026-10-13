@@ -16,6 +16,42 @@
                 </Border>
             </Grid>
 
+            <!-- Update offer (App.Updates.cs): only while a newer version is on offer -->
+            <Border x:Name="UpdateCard" Style="{StaticResource Card}" Padding="24,20" Margin="0,0,0,18" Visibility="Collapsed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="44" Height="44" CornerRadius="15" Background="{StaticResource WaterTint}" VerticalAlignment="Top">
+                        <Path Data="{StaticResource Icon.Download}" Fill="{StaticResource Water}" Width="20" Height="20" Stretch="Uniform" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                        <TextBlock x:Name="UpdateTitle" Style="{StaticResource H2}" Text="A new PawSip is here" />
+                        <TextBlock x:Name="UpdateSubtitle" Style="{StaticResource Caption}" Margin="0,3,0,0" Text="You have 1.0.2" />
+                        <StackPanel x:Name="UpdateNotes" Margin="0,10,0,0" />
+                        <StackPanel x:Name="UpdateProgressPanel" Margin="0,12,0,0" Visibility="Collapsed">
+                            <Grid Height="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="UpdateProgressDone" Width="0*" />
+                                    <ColumnDefinition x:Name="UpdateProgressLeft" Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.ColumnSpan="2" CornerRadius="4" Background="{StaticResource Field}" />
+                                <Border CornerRadius="4" Background="{StaticResource WaterGradient}" />
+                            </Grid>
+                            <TextBlock x:Name="UpdateProgressText" Style="{StaticResource Caption}" Margin="0,7,0,0" />
+                        </StackPanel>
+                        <TextBlock x:Name="UpdateStatus" Margin="0,10,0,0" FontSize="13" Foreground="#D94F7F" TextWrapping="Wrap" Visibility="Collapsed" />
+                        <WrapPanel Margin="0,14,0,0">
+                            <Button x:Name="UpdateNowButton" Style="{StaticResource PrimaryButton}" Height="40" Padding="20,0" FontSize="13.5" Content="Update now" Margin="0,0,8,0" />
+                            <Button x:Name="UpdateLaterButton" Style="{StaticResource SoftButton}" Height="40" Content="Later" Margin="0,0,8,0" />
+                            <Button x:Name="UpdateSkipButton" Style="{StaticResource GhostButton}" Height="40" Content="Skip this version" />
+                            <Button x:Name="UpdateCancelButton" Style="{StaticResource SoftButton}" Height="40" Content="Cancel" Visibility="Collapsed" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <!-- Hero -->
             <Border Style="{StaticResource Card}" Padding="30,26">
                 <Grid>

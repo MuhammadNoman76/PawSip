@@ -47,6 +47,8 @@ public partial class App : Application
         }
 
         var background = e.Args.Any(a => string.Equals(a, "--background", StringComparison.OrdinalIgnoreCase));
+        // The installer passes "--background --updated" when it starts PawSip again after an automatic update.
+        var justUpdated = e.Args.Any(a => string.Equals(a, "--updated", StringComparison.OrdinalIgnoreCase));
         if (!SingleInstance.TryStart())
         {
             // Already running: just bring up its window (unless Windows is starting us again at log-in).
@@ -75,8 +77,9 @@ public partial class App : Application
         Scheduler.Start();
         ApplyWidget();
 
-        SingleInstance.ListenForShow(() => Dispatcher.BeginInvoke(ShowMain));
+        SingleInstance.ListenForShow(() => Dispatcher.BeginInvoke(new Action(ShowMain)));
         SystemEvents.SessionEnding += (_, _) => Store.SaveNow();
+        InitUpdates(justUpdated);
 
         if (background) TrimSoon();
         else ShowMain();
@@ -84,7 +87,10 @@ public partial class App : Application
 
     // ------------------------------------------------------------------ main window
 
-    public void ShowMain()
+    public void ShowMain() => ShowMain(dashboard: false);
+
+    /// <param name="dashboard">Switch to the dashboard (where an update offer is shown).</param>
+    public void ShowMain(bool dashboard)
     {
         if (_main == null)
         {
@@ -101,6 +107,10 @@ public partial class App : Application
                 TrimSoon();
             };
             _main.Show();
+        }
+        else if (dashboard)
+        {
+            _main.ShowDashboard();
         }
         if (_main.WindowState == WindowState.Minimized) _main.WindowState = WindowState.Normal;
         _main.Activate();
@@ -222,6 +232,7 @@ public partial class App : Application
 
     public void ExitApp()
     {
+        StopUpdates();
         Scheduler.Stop();
         Presence.Stop();
         Store.SaveNow();

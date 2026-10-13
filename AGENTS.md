@@ -15,7 +15,7 @@ PawSip is a free Windows water reminder with an animated vector cat companion an
 
 ## Layout
 - `src/PawSip/` holds the app.
-  - `Core/`: DataStore, Hydration, ReminderScheduler, Messages, Sounds (meow/drop/chime synthesized in code), StartupManager, and the compat helpers `Compat.cs`, `LegacyPolyfills.cs` and `MathEx.cs`.
+  - `Core/`: DataStore, Hydration, ReminderScheduler, Updater, Messages, Sounds (meow/drop/chime synthesized in code), StartupManager, and the compat helpers `Compat.cs`, `LegacyPolyfills.cs` and `MathEx.cs`.
   - `Controls/`: CatView.xaml, the vector cat with its moods, plus WaterRing, BarChart and MonthHeatmap.
   - `Views/`: dashboard, statistics, settings, the cat widget and reminder windows, and the tray icon.
   - `Interop/`: Native and Presence.
@@ -37,16 +37,22 @@ PawSip is a free Windows water reminder with an animated vector cat companion an
 - 32-bit: use the `IntPtr.Size` wrappers in `Interop/Native.cs`; never import `GetWindowLongPtrW` directly.
 
 ## Build and release
-1. Bump `<Version>` in `src/PawSip/PawSip.csproj`.
-2. Build: `powershell -ExecutionPolicy Bypass -File build.ps1 -Version X.Y.Z`. The .NET SDK is at `%LOCALAPPDATA%\Microsoft\dotnet\dotnet.exe`; Inno Setup 6 is at `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`.
-3. Copy the installers and `SHA256SUMS.txt` to `release/`, then commit and push.
-4. In the website repo, update `src/data/pawsip.ts` (version, editions with exact bytes and SHA-256), run `npm run verify`, then commit and push.
-5. PawSip has no auto-updater yet (VibePlayer has one, in its `Core/Updater.cs`, which can be ported).
+1. Bump `<Version>` in `src/PawSip/PawSip.csproj` (and the defaults in `build.ps1` and `installer/PawSip.iss`).
+2. Build: `powershell -ExecutionPolicy Bypass -File build.ps1 -Version X.Y.Z`. The .NET SDK is at `%LOCALAPPDATA%\Microsoft\dotnet\dotnet.exe`; Inno Setup 6 is at `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`. build.ps1 embeds each build's edition (`-p:PawSipEdition=x64|arm64|x86|win7-8` → AssemblyMetadata "Edition"), which the updater uses to pick its installer.
+3. Copy the installers and `SHA256SUMS.txt` to `release/`, then commit and push. Push this repo first: the update feed links to these files.
+4. In the website repo, update `src/data/pawsip.ts` (version, released, editions with exact bytes and SHA-256) and `public/updates/pawsip.json` (the update feed; a test keeps it in step with pawsip.ts), run `npm run verify`, then commit and push. Every installed PawSip 1.0.2+ sees the new version within a day.
+
+## Automatic updates (1.0.2+)
+- `Core/Updater.cs`: reads `https://www.nomanshafiq.com/updates/pawsip.json` (`PAWSIP_UPDATE_URL` overrides it for testing; only then may installer links be plain HTTP), compares versions, downloads this edition's installer to `%TEMP%\PawSip-Update`, checks size and SHA-256 (a mismatch is deleted, never run), then runs it with `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CURRENTUSER /RELAUNCH=1 /DIR="<app folder>"`. TLS 1.2 is switched on for net48.
+- `App.Updates.cs`: first check 30 s after start, then at most every 24 h (`AppData.LastUpdateCheck`; a failed check is logged and retried after an hour). Offers go to the dashboard card (`Views/DashboardPage.Updates.cs`) or, with the window closed, a tray balloon that waits while `Native.IsUserBusy()` (fullscreen) or the user is away. Update now / Later / Skip this version (`Settings.SkippedVersion`); Settings › Updates and the tray menu have Check for updates; `Settings.CheckForUpdates` turns the daily check off.
+- `installer/PawSip.iss`: with `/RELAUNCH=1` it skips the `--set-startup` runs (the app's own startup choice stays) and starts `PawSip.exe --background --updated` (tray balloon "is ready"); `[InstallDelete]` removes the old program files first, only in a folder named PawSip that holds PawSip.exe; `StopPawSip` closes only a PawSip.exe running from `{app}` (WMI query + `taskkill /PID`), so other copies are left alone. The app empties `%TEMP%\PawSip-Update` on its next start.
+- Only an installed copy (HKCU uninstall entry for this folder, or `unins000.exe` beside it) updates itself; a build-folder copy gets "Download page" instead.
 
 ## Testing on the owner's PC (be careful)
-- The owner runs PawSip all day. Don't launch a second instance: that shows the main window of the running one.
+- The owner runs PawSip all day. Don't launch a second instance: that shows the main window of the running one. The single-instance mutex is per user (`Core/SingleInstance.cs`), so a test copy can't run beside it; a test copy started with `--background` just exits quietly.
 - Never open windows over a full-screen app (the owner watches full-screen video).
 - Back up `%APPDATA%\PawSip` before any test that could write to it.
+- Installer tests: never run a real PawSip installer on this PC (it shares the owner's AppId, shortcuts and uninstall entry). Compile a side-by-side copy instead, e.g. `ISCC /DAppIdOverride={{<new GUID>} "/DAppName=PawSip Update Test" /O<scratch> installer\PawSip.iss`, install it with `/RELAUNCH=1 /DIR=<scratch>\PawSip` (that also skips `--set-startup`, which would write the owner's data and Run key), and uninstall it afterwards.
 
 ## Git and writing rules
 - Commit as `Muhammad Noman <muhammadnomanshafiq76@gmail.com>`.

@@ -52,6 +52,7 @@ public partial class DashboardPage : UserControl
         };
         UndoButton.Click += (_, _) => _app.Hydration.UndoLast();
         StatsLink.Click += (_, _) => _openStats();
+        InitUpdateCard();
 
         Cat.MouseLeftButtonUp += (_, _) =>
         {

@@ -79,6 +79,8 @@ quiet outside your active hours.
   well under **1% CPU**. A tiny check runs every 20 seconds, and the cat animates at a gentle frame rate only
   while it's visible.
 - Your preferences, progress and reminder schedule are restored after a restart.
+- **Keeps itself up to date** (from 1.0.2): a quick daily check offers new versions and installs them with one
+  click. See [Updates](#updates).
 
 ### 🔊 Sounds
 - A soft synthesized **meow** (default), a chime, a water drop, or silence, with adjustable volume.
@@ -89,10 +91,10 @@ Pick the installer for your PC. Not sure? Most PCs need the first one.
 
 | Your Windows | Download | Size |
 |---|---|---|
-| **Windows 10 / 11**, 64-bit (Intel or AMD), most PCs | [PawSip-Setup-1.0.1-x64.exe](release/PawSip-Setup-1.0.1-x64.exe) | 48.5 MB |
-| **Windows 11 / 10 on ARM** (Snapdragon, Surface Pro X…) | [PawSip-Setup-1.0.1-arm64.exe](release/PawSip-Setup-1.0.1-arm64.exe) | 42.6 MB |
-| **Windows 10**, 32-bit | [PawSip-Setup-1.0.1-x86.exe](release/PawSip-Setup-1.0.1-x86.exe) | 44.1 MB |
-| **Windows 7 SP1 / 8.1** (32- or 64-bit; Windows 8 needs the free 8.1 update) | [PawSip-Setup-1.0.1-win7-8.exe](release/PawSip-Setup-1.0.1-win7-8.exe) | 2.5 MB |
+| **Windows 10 / 11**, 64-bit (Intel or AMD), most PCs | [PawSip-Setup-1.0.2-x64.exe](release/PawSip-Setup-1.0.2-x64.exe) | 48.5 MB |
+| **Windows 11 / 10 on ARM** (Snapdragon, Surface Pro X…) | [PawSip-Setup-1.0.2-arm64.exe](release/PawSip-Setup-1.0.2-arm64.exe) | 42.6 MB |
+| **Windows 10**, 32-bit | [PawSip-Setup-1.0.2-x86.exe](release/PawSip-Setup-1.0.2-x86.exe) | 44.1 MB |
+| **Windows 7 SP1 / 8.1** (32- or 64-bit; Windows 8 needs the free 8.1 update) | [PawSip-Setup-1.0.2-win7-8.exe](release/PawSip-Setup-1.0.2-win7-8.exe) | 2.5 MB |
 
 - The Windows 10/11 installers include everything they need. The Windows 7/8 edition uses Microsoft
   **.NET Framework 4.8**, which most of those PCs already have from Windows Update; setup tells you if it's
@@ -107,7 +109,35 @@ Pick the installer for your PC. Not sure? Most PCs need the first one.
 1. Run the installer. No admin rights needed; it installs just for your user account.
 2. Keep **Start PawSip with Windows** ticked so your cat is always there.
 
+Installing a newer version, or another edition, replaces the one you have; your history and settings are kept.
 Uninstall from *Settings › Apps*. Your history stays in `%APPDATA%\PawSip` in case you reinstall.
+
+## Updates
+
+From version 1.0.2 PawSip keeps itself up to date:
+
+- About 30 seconds after it starts, and then at most once every 24 hours while it runs, it downloads the
+  update feed [`https://www.nomanshafiq.com/updates/pawsip.json`](https://www.nomanshafiq.com/updates/pawsip.json).
+  A failed check (offline, server down) is silent and tried again later.
+- If the feed lists a newer version, it's offered in a card at the top of the dashboard: **Update now**,
+  **Later** or **Skip this version**. While the window is closed, a tray notification tells you instead (click
+  it to open the card). It never pops up over a fullscreen game, video or presentation, or while you're away;
+  it waits for a better moment.
+- **Update now** downloads the installer for your edition (Windows 10/11 x64, ARM64 or 32-bit, or
+  Windows 7/8.1) to `%TEMP%\PawSip-Update`, showing the progress, and checks its size and SHA-256 against the
+  feed; a file that doesn't match is deleted and never run. Then PawSip runs the installer silently, just for
+  your user account (no admin prompt), and exits. The installer replaces the old version in place, removing
+  files it no longer uses, keeps your data in `%APPDATA%\PawSip` and your "Start with Windows" choice, and
+  starts PawSip again in the tray. The downloaded installer is removed the next time PawSip starts.
+- **Settings › Updates** has **Check for updates** (it also offers a version you skipped) and
+  **Check for updates automatically** to turn the daily check off. The tray menu has **Check for updates…**
+  too, and shows **Update to PawSip x.y.z…** while an update is waiting.
+- Privacy: the check is an ordinary HTTPS request for that JSON file, with `PawSip/<version>` as its user
+  agent. Nothing else is sent: no ID, no usage data, nothing about your water or your settings.
+- Versions 1.0.0 and 1.0.1 don't have the updater: install 1.0.2 over them once.
+
+For testing, the environment variable `PAWSIP_UPDATE_URL` points PawSip at another feed (an `http(s)://`
+address or a file path); only then may installer links use plain HTTP.
 
 ## Tips
 
@@ -115,13 +145,14 @@ Uninstall from *Settings › Apps*. Your history stays in `%APPDATA%\PawSip` in 
 |---|---|
 | Desktop cat | Hover: drink a glass, undo, open the app · Right-click: remind me in…, cat size, keep on top · Drag: move it · Click: pet it |
 | Reminder bubble | **I drank water** · **Remind me later** (pick the time) · ✕ dismiss |
-| Tray icon | Open, log a glass, remind me now, show or hide the desktop cat, pause or resume reminders, exit |
-| Settings | Goal and glass size, interval, activity-based reminders, your day's hours, smart timing, "ask again" time, snooze length, fullscreen behaviour, desktop cat, cat style and size, animations, sound and volume, start with Windows |
+| Tray icon | Open, log a glass, remind me now, show or hide the desktop cat, pause or resume reminders, check for updates, exit |
+| Settings | Goal and glass size, interval, activity-based reminders, your day's hours, smart timing, "ask again" time, snooze length, fullscreen behaviour, desktop cat, cat style and size, animations, sound and volume, updates, start with Windows |
 
 ## Privacy
 
-Everything stays on your PC in `%APPDATA%\PawSip\pawsip.json`. There are no accounts, no network access and
-no tracking.
+Everything stays on your PC in `%APPDATA%\PawSip\pawsip.json`. There are no accounts and no tracking. The only
+network access is the update check described in [Updates](#updates), which sends nothing about you and can be
+turned off in *Settings › Updates*.
 
 ## Build from source
 
@@ -140,7 +171,7 @@ so the PC doesn't need .NET installed) and **.NET Framework 4.8** (Windows 7 SP1
 
 ```
 src/PawSip/
-  Core/       Hydration tracking, smart reminder scheduler, storage, startup, synthesized sounds
+  Core/       Hydration tracking, smart reminder scheduler, storage, startup, updater, synthesized sounds
   Controls/   The animated vector cat, water ring, bar chart, month calendar, stepper
   Views/      Dashboard, statistics, settings, desktop widget, reminder cat, tray icon
   Themes/     Pastel theme: colors, icons, buttons, switches, chips

@@ -147,6 +147,39 @@ public partial class SettingsPage : UserControl
         };
         sound.Children.Add(Row("Volume", null, volume, last: true));
 
+        // ------------------------------------------------ Updates
+        var updates = Card("Updates", "Icon.Download", "WaterTint", "WaterDeep");
+        updates.Children.Add(Row("Check for updates automatically",
+            "About 30 seconds after PawSip starts, then at most once a day, it reads a small file from nomanshafiq.com. Nothing about you or your data is sent.",
+            Switch(S.CheckForUpdates, v => { S.CheckForUpdates = v; Saved(timing: false); })));
+        var checkPanel = new StackPanel();
+        var checkButton = new Button { Style = GetStyle("SoftButton"), HorizontalAlignment = HorizontalAlignment.Left, Content = "Check for updates" };
+        var checkStatus = new TextBlock { Style = GetStyle("Caption"), Margin = new Thickness(0, 8, 0, 0), Visibility = Visibility.Collapsed };
+        checkButton.Click += async (_, _) =>
+        {
+            checkButton.IsEnabled = false;
+            checkStatus.Text = "Checking…";
+            checkStatus.Visibility = Visibility.Visible;
+            var result = await _app.CheckForUpdatesAsync(manual: true);
+            checkButton.IsEnabled = true;
+            checkStatus.Text = result switch
+            {
+                UpdateCheckResult.Available => $"PawSip {_app.AvailableUpdate?.Version} is available. It's on the dashboard.",
+                UpdateCheckResult.UpToDate => "You're up to date.",
+                UpdateCheckResult.Busy => "PawSip is already checking or updating.",
+                _ => "Couldn't check for updates. Check your internet connection and try again.",
+            };
+            if (result == UpdateCheckResult.Available) _app.ShowMain(dashboard: true);
+        };
+        checkPanel.Children.Add(checkButton);
+        checkPanel.Children.Add(checkStatus);
+        var lastChecked = _app.Store.Data.LastUpdateCheck is { } at
+            ? "last checked " + at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)
+            : "not checked yet";
+        updates.Children.Add(Row("Check now",
+            $"You have PawSip {Updater.CurrentVersionText} ({Updater.EditionName(Updater.Edition)}), {lastChecked}.",
+            checkPanel, last: true));
+
         // ------------------------------------------------ System
         var sys = Card("System", "Icon.Settings", "MintTint", "Mint");
         sys.Children.Add(Row("Start with Windows", "PawSip starts quietly in the system tray when you sign in.",
